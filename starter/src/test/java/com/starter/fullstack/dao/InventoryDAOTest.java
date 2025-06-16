@@ -55,7 +55,7 @@ public class InventoryDAOTest {
   }
 
   /**
-   * Test Find All method.
+   * Test Create method.
    */
   @Test
   public void create() {
@@ -63,7 +63,14 @@ public class InventoryDAOTest {
     inventory.setName(NAME);
     inventory.setProductType(PRODUCT_TYPE);
     inventory = inventoryDAO.create(inventory);
-    Assert.assertEquals(mongoTemplate.findById(inventory.getId(), Inventory.class), inventory);
     Assert.assertEquals(mongoTemplate.count(new Query(), Inventory.class), 1);
+    Assert.assertEquals(mongoTemplate.findById(inventory.getId(), Inventory.class), inventory);
+
+    Inventory inventory2 = new Inventory();
+    inventory2.setId(inventory.getId());
+    inventory2.setName(NAME);
+    inventory2.setProductType(PRODUCT_TYPE);
+    inventory2 = inventoryDAO.create(inventory2);
+    Assert.assertEquals(mongoTemplate.count(new Query(), Inventory.class), 2);
   }
 }
