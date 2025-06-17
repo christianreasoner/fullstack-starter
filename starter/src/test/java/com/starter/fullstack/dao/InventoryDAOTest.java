@@ -2,6 +2,7 @@ package com.starter.fullstack.dao;
 
 import com.starter.fullstack.api.Inventory;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Resource;
 import org.junit.After;
 import org.junit.Assert;
@@ -63,7 +64,7 @@ public class InventoryDAOTest {
     inventory.setName(NAME);
     inventory.setProductType(PRODUCT_TYPE);
     inventory = inventoryDAO.create(inventory);
-    Assert.assertEquals(mongoTemplate.count(new Query(), Inventory.class), 1);
+    Assert.assertEquals(1, mongoTemplate.count(new Query(), Inventory.class));
     Assert.assertEquals(mongoTemplate.findById(inventory.getId(), Inventory.class), inventory);
 
     Inventory inventory2 = new Inventory();
@@ -71,6 +72,23 @@ public class InventoryDAOTest {
     inventory2.setName(NAME);
     inventory2.setProductType(PRODUCT_TYPE);
     inventory2 = inventoryDAO.create(inventory2);
-    Assert.assertEquals(mongoTemplate.count(new Query(), Inventory.class), 2);
+    Assert.assertEquals(2, mongoTemplate.count(new Query(), Inventory.class));
+  }
+
+  /**
+   * Test Delete method.
+   */
+  @Test
+  public void delete() {
+    Inventory inventory = new Inventory();
+    inventory.setName(NAME);
+    inventory.setProductType(PRODUCT_TYPE);
+    this.inventoryDAO.create(inventory);
+    Optional<Inventory> actualInventory = this.inventoryDAO.delete(inventory.getId());
+    Assert.assertTrue(actualInventory.isPresent());
+    Assert.assertEquals(actualInventory.get(), inventory);
+    Assert.assertEquals(0, this.mongoTemplate.count(new Query(), Inventory.class));
+    actualInventory = this.inventoryDAO.delete("invalidID");
+    Assert.assertFalse(actualInventory.isPresent());
   }
 }
