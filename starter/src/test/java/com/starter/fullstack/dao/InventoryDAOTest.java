@@ -2,6 +2,7 @@ package com.starter.fullstack.dao;
 
 import com.starter.fullstack.api.Inventory;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Resource;
 import org.junit.After;
 import org.junit.Assert;
@@ -11,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -51,5 +53,42 @@ public class InventoryDAOTest {
     this.mongoTemplate.save(inventory);
     List<Inventory> actualInventory = this.inventoryDAO.findAll();
     Assert.assertFalse(actualInventory.isEmpty());
+  }
+
+  /**
+   * Test Create method.
+   */
+  @Test
+  public void create() {
+    Inventory inventory = new Inventory();
+    inventory.setName(NAME);
+    inventory.setProductType(PRODUCT_TYPE);
+    inventory = inventoryDAO.create(inventory);
+    Assert.assertEquals(1, mongoTemplate.count(new Query(), Inventory.class));
+    Assert.assertEquals(mongoTemplate.findById(inventory.getId(), Inventory.class), inventory);
+
+    Inventory inventory2 = new Inventory();
+    inventory2.setId(inventory.getId());
+    inventory2.setName(NAME);
+    inventory2.setProductType(PRODUCT_TYPE);
+    inventoryDAO.create(inventory2);
+    Assert.assertEquals(2, mongoTemplate.count(new Query(), Inventory.class));
+  }
+
+  /**
+   * Test Delete method.
+   */
+  @Test
+  public void delete() {
+    Inventory inventory = new Inventory();
+    inventory.setName(NAME);
+    inventory.setProductType(PRODUCT_TYPE);
+    this.inventoryDAO.create(inventory);
+    Optional<Inventory> actualInventory = this.inventoryDAO.delete(inventory.getId());
+    Assert.assertTrue(actualInventory.isPresent());
+    Assert.assertEquals(actualInventory.get(), inventory);
+    Assert.assertEquals(0, this.mongoTemplate.count(new Query(), Inventory.class));
+    actualInventory = this.inventoryDAO.delete("invalidID");
+    Assert.assertFalse(actualInventory.isPresent());
   }
 }
