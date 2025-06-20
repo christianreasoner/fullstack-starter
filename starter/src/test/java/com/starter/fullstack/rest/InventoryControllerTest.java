@@ -3,6 +3,8 @@ package com.starter.fullstack.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.starter.fullstack.api.Inventory;
 import com.starter.fullstack.dao.InventoryDAO;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -76,11 +78,16 @@ public class InventoryControllerTest {
     inventory.setId("ID");
     inventory.setName("TEST");
     inventory.setProductType("hops");
+    List<String> inventoryIds = new ArrayList<>();
     this.inventoryDAO.create(inventory);
+    for (Inventory i : this.inventoryDAO.findAll()) {
+      inventoryIds.add(i.getId());
+    }
+
     this.mockMvc.perform(delete("/inventory")
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
-        .content(inventory.getId()))
+        .content(objectMapper.writeValueAsString(inventoryIds)))
       .andExpect(status().isOk());
 
     Assert.assertEquals(0, this.mongoTemplate.findAll(Inventory.class).size());
