@@ -63,6 +63,10 @@ const InventoryLayout = (props) => {
     dispatch(inventoryDuck.saveInventory(updatedInventory))
   }, [dispatch])
 
+  function getInventoryById(id) {
+    return inventory.find(item => item.id === id)
+  }
+
   useEffect(() => {
     if (!isFetched) {
       dispatch(inventoryDuck.findInventory())
@@ -199,14 +203,14 @@ const InventoryLayout = (props) => {
           isDialogOpen={isEditOpen}
           handleDialog={toggleModals}
           handleInventory={saveInventory}
-          initialValues={selected[0]}
+          initialValues={getInventoryById(selected[0])}
+          products={products}
         />
         <InventoryDeleteModal
           isDialogOpen={isDeleteOpen}
           handleDelete={removeInventory}
           handleDialog={toggleModals}
           initialValues={selected}
-          // initialValues={selected.map(check => check.id)}
         />
       </Grid>
     </Grid>

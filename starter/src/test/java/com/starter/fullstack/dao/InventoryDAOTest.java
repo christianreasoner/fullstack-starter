@@ -61,18 +61,25 @@ public class InventoryDAOTest {
   @Test
   public void create() {
     Inventory inventory = new Inventory();
+    inventory.setId("TEST_ID");
     inventory.setName(NAME);
     inventory.setProductType(PRODUCT_TYPE);
-    inventory = inventoryDAO.create(inventory);
+    inventoryDAO.create(inventory);
+
     Assert.assertEquals(1, mongoTemplate.count(new Query(), Inventory.class));
     Assert.assertEquals(mongoTemplate.findById(inventory.getId(), Inventory.class), inventory);
 
     Inventory inventory2 = new Inventory();
-    inventory2.setId(inventory.getId());
+    inventory2.setId("TEST_ID");
     inventory2.setName(NAME);
     inventory2.setProductType(PRODUCT_TYPE);
+    inventory2.setDescription("test description");
     inventoryDAO.create(inventory2);
-    Assert.assertEquals(2, mongoTemplate.count(new Query(), Inventory.class));
+
+    Assert.assertEquals(1, mongoTemplate.count(new Query(), Inventory.class));
+    Assert.assertEquals(mongoTemplate.findById(inventory.getId(), Inventory.class), inventory2);
+    Assert.assertEquals("test description", mongoTemplate.findById(inventory.getId(),
+      Inventory.class).getDescription());
   }
 
   /**

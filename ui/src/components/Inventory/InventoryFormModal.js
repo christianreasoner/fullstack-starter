@@ -4,19 +4,17 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Grid from '@material-ui/core/Grid'
+import { MeasurementUnits } from '../../constants/units'
 import React from 'react'
 import Select from '../Form/Select'
 import TextField from '../Form/TextField'
 import { Field, Form, Formik } from 'formik'
-import { MeasurementUnits } from '../../constants/units'
 
 class InventoryFormModal extends React.Component {
   render() {
     const unitOptions = Object.entries(MeasurementUnits).map(
       ([key, value]) => ({ value: key, label: value.name })
     )
-
-    //const todaysDate = new Date().toISOString().split('T')[0]
 
     const {
       formName,
@@ -26,16 +24,11 @@ class InventoryFormModal extends React.Component {
       initialValues,
       products
     } = this.props
-
     const productOptions = (products || []).map(product => ({
       value: product.name,
       label: product.name
     }))
 
-    // const initialValuesWithDefaultDate = {
-    //   bestBefore: todaysDate,
-    //   ...initialValues
-    // }
     return (
       <Dialog
         open={this.props.isDialogOpen}
@@ -44,34 +37,27 @@ class InventoryFormModal extends React.Component {
         onClose={() => { handleDialog(false) }}
       >
         <Formik
-          // initialValues={initialValuesWithDefaultDate}
           initialValues={initialValues}
+          validate={values => {
+            const errors = {}
+            if (!values.name) {
+              errors.name = 'Required'
+            }
+            if (!values.productType) {
+              errors.productType = 'Required'
+            }
+            if (!values.unitOfMeasurement) {
+              errors.unitOfMeasurement = 'Required'
+            }
+            return errors
+          }}
           onSubmit={values => {
             handleInventory(values)
             handleDialog(true)
           }}>
-          {/*<Formik*/}
-          {/*  initialValues={initialValues}*/}
-          {/*  validate={values => {*/}
-          {/*    const errors = {}*/}
-          {/*    if (!values.name) {*/}
-          {/*      errors.name = 'Required'*/}
-          {/*    }*/}
-          {/*    if (!values.productType) {*/}
-          {/*      errors.productType = 'Required'*/}
-          {/*    }*/}
-          {/*    if (!values.unitOfMeasurement) {*/}
-          {/*      errors.unitOfMeasurement = 'Required'*/}
-          {/*    }*/}
-          {/*    return errors*/}
-          {/*  }}*/}
-          {/*  onSubmit={values => {*/}
-          {/*    handleInventory(values)*/}
-          {/*    handleDialog(true)*/}
-          {/*  }}>*/}
           {helpers =>
             <Form
-              // noValidate
+              noValidate
               autoComplete='off'
               id={formName}
             >
@@ -137,14 +123,13 @@ class InventoryFormModal extends React.Component {
                       required
                       component={Select}
                       options={unitOptions}
-                      // custom={{ variant: 'outlined', fullWidth: true }}
+                      custom={{ variant: 'outlined', fullWidth: true }}
                     />
                   </Grid>
                   <Grid item xs={6} sm={6}>
                     Best Before Date
                     <Field
                       name='bestBeforeDate'
-                      //component={TextField}
                       type='date'
                       custom={{ variant: 'outlined', fullWidth: true }}
                     />
@@ -154,7 +139,6 @@ class InventoryFormModal extends React.Component {
                     <Field
                       name='neverExpires'
                       label='Never Expires'
-                      // component={Checkbox}
                       type='checkbox'
                     />
                   </Grid>
@@ -169,7 +153,6 @@ class InventoryFormModal extends React.Component {
                   form={formName}
                   color='secondary'
                   disabled={!helpers.dirty}>
-                  {/*disabled={!helpers.isValid || !helpers.dirty}>*/}
                   Save
                 </Button>
               </DialogActions>

@@ -53,8 +53,14 @@ public class InventoryDAO {
    * @return Created/Updated Inventory.
    */
   public Inventory create(Inventory inventory) {
-    inventory.setId(null);
-    return this.mongoTemplate.insert(inventory);
+    Query query = new Query(Criteria.where("id").is(inventory.getId()));
+    boolean exists = mongoTemplate.exists(query, Inventory.class);
+    if (exists) {
+      this.mongoTemplate.findAndReplace(query, inventory);
+      return inventory;
+    }
+    this.mongoTemplate.insert(inventory);
+    return inventory;
   }
 
   /**
