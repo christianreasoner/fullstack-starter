@@ -62,6 +62,16 @@ const InventoryLayout = (props) => {
 
     dispatch(inventoryDuck.saveInventory(updatedInventory))
   }, [dispatch])
+  const updateInventory = useCallback(inventory => {
+    const updatedInventory = {
+      ...inventory,
+      bestBeforeDate: inventory.bestBeforeDate
+        ? new Date(inventory.bestBeforeDate).toISOString()
+        : null,
+    }
+
+    dispatch(inventoryDuck.updateInventory(updatedInventory))
+  }, [dispatch])
 
   function getInventoryById(id) {
     return inventory.find(item => item.id === id)
@@ -202,7 +212,7 @@ const InventoryLayout = (props) => {
           formName='inventoryEdit'
           isDialogOpen={isEditOpen}
           handleDialog={toggleModals}
-          handleInventory={saveInventory}
+          handleInventory={updateInventory}
           initialValues={getInventoryById(selected[0])}
           products={products}
         />

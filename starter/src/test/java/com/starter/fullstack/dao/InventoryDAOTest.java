@@ -1,8 +1,7 @@
 package com.starter.fullstack.dao;
 
 import com.starter.fullstack.api.Inventory;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import javax.annotation.Resource;
 import org.junit.After;
 import org.junit.Assert;
@@ -91,11 +90,32 @@ public class InventoryDAOTest {
     inventory.setName(NAME);
     inventory.setProductType(PRODUCT_TYPE);
     this.inventoryDAO.create(inventory);
-    Optional<Inventory> actualInventory = this.inventoryDAO.delete(inventory.getId());
-    Assert.assertTrue(actualInventory.isPresent());
-    Assert.assertEquals(actualInventory.get(), inventory);
+    ArrayList<String> list = new ArrayList<>();
+    list.add(inventory.getId());
+    List<Optional<Inventory>> actualInventory = this.inventoryDAO.delete(list);
+
+    Assert.assertTrue(actualInventory.get(0).isPresent());
+    Assert.assertEquals(actualInventory.get(0).get(), inventory);
     Assert.assertEquals(0, this.mongoTemplate.count(new Query(), Inventory.class));
-    actualInventory = this.inventoryDAO.delete("invalidID");
-    Assert.assertFalse(actualInventory.isPresent());
+  }
+
+  /**
+   * Test Update method.
+   */
+  @Test
+  public void update() {
+    Inventory inventory = new Inventory();
+    inventory.setId("TEST_ID");
+    inventory.setName(NAME);
+    inventory.setProductType(PRODUCT_TYPE);
+    this.inventoryDAO.create(inventory);
+
+    Inventory inventory2 = new Inventory();
+    inventory2.setId("TEST_ID");
+    inventory2.setName("NEW_NAME");
+    inventory2.setProductType(PRODUCT_TYPE);
+    this.inventoryDAO.update("TEST_ID", inventory2);
+    Assert.assertEquals(1, this.mongoTemplate.count(new Query(), Inventory.class));
+    Assert.assertEquals(mongoTemplate.findById("TEST_ID", Inventory.class), inventory2);
   }
 }

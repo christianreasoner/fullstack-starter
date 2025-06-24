@@ -24,7 +24,6 @@ class InventoryDeleteModal extends React.Component {
         <Formik
           initialValues={initialValues}
           onSubmit={values => {
-            console.log(values)
             handleDelete(values)
             handleDialog(true)
           }}>

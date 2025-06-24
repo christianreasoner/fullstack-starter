@@ -3,6 +3,7 @@ package com.starter.fullstack.dao;
 import com.starter.fullstack.api.Inventory;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -80,17 +81,20 @@ public class InventoryDAO {
    * @return Updated Inventory.
    */
   public Optional<Inventory> update(String id, Inventory inventory) {
-    // TODO
-    return Optional.empty();
+    Query query = new Query(Criteria.where("id").is(id));
+    return Optional.ofNullable(this.mongoTemplate.findAndReplace(query, inventory));
   }
 
   /**
    * Delete Inventory By Id.
-   * @param id Id of Inventory.
+   * @param ids Ids of Inventory.
    * @return Deleted Inventory.
    */
-  public Optional<Inventory> delete(String id) {
-    Query query = new Query(Criteria.where("id").is(id));
-    return Optional.ofNullable(this.mongoTemplate.findAndRemove(query, Inventory.class));
+  public List<Optional<Inventory>> delete(List<String> ids) {
+    Query query = new Query(Criteria.where("id").in(ids));
+    List<Inventory> deletedInventories = this.mongoTemplate.findAllAndRemove(query, Inventory.class);
+    return deletedInventories.stream()
+      .map(Optional::ofNullable)
+      .collect(Collectors.toList());
   }
 }
